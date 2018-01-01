@@ -1,0 +1,15 @@
+# Compressed files
+*.7z
+
+# Data files
+CSVS/
+
+# Compiled files
+target/
+
+# IDE files
+.idea/
+*.iml
+*.xml
+*.yml
+*.conf

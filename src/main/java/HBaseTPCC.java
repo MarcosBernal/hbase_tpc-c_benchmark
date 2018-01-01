@@ -1,9 +1,15 @@
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.*;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,11 +32,63 @@ public class HBaseTPCC {
     }
 
     public void createTPCCTables() throws IOException {
-        //TO IMPLEMENT
-        System.exit(-1);
+
+        // Create a table for warehouse
+        HTableDescriptor d_warehouse = new HTableDescriptor(TableName.valueOf(Bytes.toBytes("warehouse")));
+        HTableDescriptor d_stock = new HTableDescriptor(TableName.valueOf(Bytes.toBytes("stock")));
+        HTableDescriptor d_item = new HTableDescriptor(TableName.valueOf(Bytes.toBytes("item")));
+        HTableDescriptor d_history = new HTableDescriptor(TableName.valueOf(Bytes.toBytes("history")));
+        HTableDescriptor d_new_order = new HTableDescriptor(TableName.valueOf(Bytes.toBytes("new_order")));
+        HTableDescriptor d_order_line = new HTableDescriptor(TableName.valueOf(Bytes.toBytes("order_line")));
+        HTableDescriptor d_district = new HTableDescriptor(TableName.valueOf(Bytes.toBytes("district")));
+        HTableDescriptor d_customer = new HTableDescriptor(TableName.valueOf(Bytes.toBytes("customer")));
+        HTableDescriptor d_order = new HTableDescriptor(TableName.valueOf(Bytes.toBytes("order")));
+
+
+        // Relationship defined in pages 11-17 of http://www.tpc.org/tpc_documents_current_versions/pdf/tpc-c_v5.11.0.pdf
+        // Each letter refer to a table(acronym)
+        d_warehouse.addFamily(new HColumnDescriptor(Bytes.toBytes("W")));
+
+        d_district.addFamily(new HColumnDescriptor(Bytes.toBytes("D")));
+        d_district.addFamily(new HColumnDescriptor(Bytes.toBytes("W")));
+
+        d_customer.addFamily(new HColumnDescriptor(Bytes.toBytes("C")));
+        d_customer.addFamily(new HColumnDescriptor(Bytes.toBytes("D")));
+
+        d_history.addFamily(new HColumnDescriptor(Bytes.toBytes("H")));
+        d_history.addFamily(new HColumnDescriptor(Bytes.toBytes("C")));
+        d_history.addFamily(new HColumnDescriptor(Bytes.toBytes("D")));
+
+        d_new_order.addFamily(new HColumnDescriptor(Bytes.toBytes("NO")));
+        d_new_order.addFamily(new HColumnDescriptor(Bytes.toBytes("O")));
+
+        d_order.addFamily(new HColumnDescriptor(Bytes.toBytes("O")));
+        d_order.addFamily(new HColumnDescriptor(Bytes.toBytes("C")));
+
+        d_order_line.addFamily(new HColumnDescriptor(Bytes.toBytes("OL")));
+        d_order_line.addFamily(new HColumnDescriptor(Bytes.toBytes("O")));
+        d_order_line.addFamily(new HColumnDescriptor(Bytes.toBytes("S")));
+
+        d_item.addFamily(new HColumnDescriptor(Bytes.toBytes("I")));
+
+        d_stock.addFamily(new HColumnDescriptor(Bytes.toBytes("S")));
+        d_stock.addFamily(new HColumnDescriptor(Bytes.toBytes("W")));
+        d_stock.addFamily(new HColumnDescriptor(Bytes.toBytes("I")));
+
+
+        this.hBaseAdmin.createTable(d_warehouse);
+        this.hBaseAdmin.createTable(d_stock);
+        this.hBaseAdmin.createTable(d_item);
+        this.hBaseAdmin.createTable(d_history);
+        this.hBaseAdmin.createTable(d_new_order);
+        this.hBaseAdmin.createTable(d_order_line);
+        this.hBaseAdmin.createTable(d_district);
+        this.hBaseAdmin.createTable(d_customer);
+        this.hBaseAdmin.createTable(d_order);
+
     }
 
-    public void loadTables(String folder)throws IOException{
+    public void loadTables(String folderpath)throws IOException{
         //TO IMPLEMENT
         System.exit(-1);
     }
