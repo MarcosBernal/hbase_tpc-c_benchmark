@@ -4,7 +4,9 @@ import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.util.Bytes;
+import tabledescriptors.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,7 +44,7 @@ public class HBaseTPCC {
         HTableDescriptor d_order_line = new HTableDescriptor(TableName.valueOf(Bytes.toBytes("order_line")));
         HTableDescriptor d_district = new HTableDescriptor(TableName.valueOf(Bytes.toBytes("district")));
         HTableDescriptor d_customer = new HTableDescriptor(TableName.valueOf(Bytes.toBytes("customer")));
-        HTableDescriptor d_order = new HTableDescriptor(TableName.valueOf(Bytes.toBytes("order")));
+        HTableDescriptor d_order = new HTableDescriptor(TableName.valueOf(Bytes.toBytes("orders")));
 
 
         // Relationship defined in pages 11-17 of http://www.tpc.org/tpc_documents_current_versions/pdf/tpc-c_v5.11.0.pdf
@@ -89,8 +91,19 @@ public class HBaseTPCC {
     }
 
     public void loadTables(String folderpath)throws IOException{
-        //TO IMPLEMENT
-        System.exit(-1);
+        File folder = new File(folderpath);
+        File[] listOfFiles = folder.listFiles();
+
+        Warehouse.insertData(config, folderpath);
+        District.insertData(config, folderpath);
+        Customer.insertData(config, folderpath);
+        History.insertData(config, folderpath);
+        NewOrder.insertData(config, folderpath);
+        Order.insertData(config, folderpath);
+        OrderLine.insertData(config, folderpath);
+        Item.insertData(config, folderpath);
+        Stock.insertData(config, folderpath);
+
     }
 
     /**
