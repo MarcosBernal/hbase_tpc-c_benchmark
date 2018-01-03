@@ -39,7 +39,7 @@ public class History {
 
         for(String line; (line = br.readLine()) != null; ) {
             String[] fields = line.split(",");
-            if(fields.length != 9)
+            if(fields.length != 8)
                 continue;
             Put p = new Put(Bytes.toBytes(fields[5]));
 

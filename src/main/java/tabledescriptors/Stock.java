@@ -36,11 +36,17 @@ public class Stock {
         }
 
         HTable table = new HTable(config, name);
+        long nline = 0;
 
         for(String line; (line = br.readLine()) != null; ) {
             String[] fields = line.split(",");
-            if(fields.length != 9)
+            nline++;
+
+            if(fields.length != 17){
+               System.out.println("Found missing values in table: "+ name +" line: "+nline + " number of fields: " + fields.length);
                 continue;
+            }
+
             Put p = new Put(Bytes.toBytes(fields[1]+fields[0]));
 
             p.add(Bytes.toBytes("I"), Bytes.toBytes("ID"), Bytes.toBytes(fields[0])); // S_I_ID
@@ -60,9 +66,6 @@ public class Stock {
             p.add(Bytes.toBytes("S"), Bytes.toBytes("ORDER_CNT"), Bytes.toBytes(fields[14])); // s_DISTI_PRICE
             p.add(Bytes.toBytes("S"), Bytes.toBytes("REMOTE_CNT"), Bytes.toBytes(fields[15])); // I_PRICE
             p.add(Bytes.toBytes("S"), Bytes.toBytes("DATA"), Bytes.toBytes(fields[16])); // I_PRICE
-
-
-            p.add(Bytes.toBytes("I"), Bytes.toBytes("DATA"), Bytes.toBytes(fields[4])); // I_DATA
 
             table.put(p);
         }

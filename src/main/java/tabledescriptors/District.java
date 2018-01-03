@@ -36,21 +36,31 @@ public class District{
         }
 
         HTable table = new HTable(config, name);
+	      long nline = 0;
 
         for(String line; (line = br.readLine()) != null; ) {
             String[] fields = line.split(",");
-            if(fields.length != 9)
+	          nline++;
+
+            if(fields.length != 11){
+								System.out.println("Found missing values in line: "+nline + " number of fields: " + fields.length);
                 continue;
+						}
+
+
             Put p = new Put(Bytes.toBytes(fields[1]+fields[0]));
 
             p.add(Bytes.toBytes("D"), Bytes.toBytes("ID"), Bytes.toBytes(fields[0]));
             p.add(Bytes.toBytes("W"), Bytes.toBytes("ID"), Bytes.toBytes(fields[1]));
-            p.add(Bytes.toBytes("D"), Bytes.toBytes("STREET_2"), Bytes.toBytes(fields[2]));
-            p.add(Bytes.toBytes("D"), Bytes.toBytes("CITY"), Bytes.toBytes(fields[3]));
-            p.add(Bytes.toBytes("D"), Bytes.toBytes("STATE"), Bytes.toBytes(fields[4]));
-            p.add(Bytes.toBytes("D"), Bytes.toBytes("ZIP"), Bytes.toBytes(fields[5]));
-            p.add(Bytes.toBytes("D"), Bytes.toBytes("TAX"), Bytes.toBytes(fields[6]));
-            p.add(Bytes.toBytes("D"), Bytes.toBytes("YTD"), Bytes.toBytes(fields[7]));
+	          p.add(Bytes.toBytes("D"), Bytes.toBytes("NAME"), Bytes.toBytes(fields[2]));
+            p.add(Bytes.toBytes("D"), Bytes.toBytes("STREET_1"), Bytes.toBytes(fields[3]));            
+            p.add(Bytes.toBytes("D"), Bytes.toBytes("STREET_2"), Bytes.toBytes(fields[4]));
+            p.add(Bytes.toBytes("D"), Bytes.toBytes("CITY"), Bytes.toBytes(fields[5]));
+            p.add(Bytes.toBytes("D"), Bytes.toBytes("STATE"), Bytes.toBytes(fields[6]));
+            p.add(Bytes.toBytes("D"), Bytes.toBytes("ZIP"), Bytes.toBytes(fields[7]));
+            p.add(Bytes.toBytes("D"), Bytes.toBytes("TAX"), Bytes.toBytes(fields[8]));
+            p.add(Bytes.toBytes("D"), Bytes.toBytes("YTD"), Bytes.toBytes(fields[9]));
+            p.add(Bytes.toBytes("D"), Bytes.toBytes("NEXT_O_ID"), Bytes.toBytes(fields[10]));
 
             table.put(p);
         }

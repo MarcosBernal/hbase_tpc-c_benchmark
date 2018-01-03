@@ -36,11 +36,17 @@ public class Customer { // extends OwnParser{
         }
 
         HTable table = new HTable(config, name);
+	      long nline = 0;
 
         for(String line; (line = br.readLine()) != null; ) {
             String[] fields = line.split(",");
-            if(fields.length != 9)
+	          nline++;
+
+            if(fields.length != 21){
+								System.out.println("Found missing values in line: "+nline + " number of fields: " + fields.length);
                 continue;
+						}
+
             Put p = new Put(Bytes.toBytes(fields[2]+fields[1]+fields[0]));
 
             p.add(Bytes.toBytes("C"), Bytes.toBytes("ID"), Bytes.toBytes(fields[0]));

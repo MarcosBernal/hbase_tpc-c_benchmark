@@ -56,26 +56,33 @@ public class HBaseTPCC {
 
         d_customer.addFamily(new HColumnDescriptor(Bytes.toBytes("C")));
         d_customer.addFamily(new HColumnDescriptor(Bytes.toBytes("D")));
+	      d_customer.addFamily(new HColumnDescriptor(Bytes.toBytes("W")));
 
         d_history.addFamily(new HColumnDescriptor(Bytes.toBytes("H")));
         d_history.addFamily(new HColumnDescriptor(Bytes.toBytes("C")));
         d_history.addFamily(new HColumnDescriptor(Bytes.toBytes("D")));
+	      d_history.addFamily(new HColumnDescriptor(Bytes.toBytes("W")));
 
-        d_new_order.addFamily(new HColumnDescriptor(Bytes.toBytes("NO")));
         d_new_order.addFamily(new HColumnDescriptor(Bytes.toBytes("O")));
+        d_new_order.addFamily(new HColumnDescriptor(Bytes.toBytes("D")));
+        d_new_order.addFamily(new HColumnDescriptor(Bytes.toBytes("W")));
 
         d_order.addFamily(new HColumnDescriptor(Bytes.toBytes("O")));
+      	d_order.addFamily(new HColumnDescriptor(Bytes.toBytes("D")));
+      	d_order.addFamily(new HColumnDescriptor(Bytes.toBytes("W")));
         d_order.addFamily(new HColumnDescriptor(Bytes.toBytes("C")));
 
-        d_order_line.addFamily(new HColumnDescriptor(Bytes.toBytes("OL")));
         d_order_line.addFamily(new HColumnDescriptor(Bytes.toBytes("O")));
-        d_order_line.addFamily(new HColumnDescriptor(Bytes.toBytes("S")));
+        d_order_line.addFamily(new HColumnDescriptor(Bytes.toBytes("D")));
+        d_order_line.addFamily(new HColumnDescriptor(Bytes.toBytes("W")));
+        d_order_line.addFamily(new HColumnDescriptor(Bytes.toBytes("OL")));
+        d_order_line.addFamily(new HColumnDescriptor(Bytes.toBytes("I")));
 
         d_item.addFamily(new HColumnDescriptor(Bytes.toBytes("I")));
 
-        d_stock.addFamily(new HColumnDescriptor(Bytes.toBytes("S")));
-        d_stock.addFamily(new HColumnDescriptor(Bytes.toBytes("W")));
         d_stock.addFamily(new HColumnDescriptor(Bytes.toBytes("I")));
+        d_stock.addFamily(new HColumnDescriptor(Bytes.toBytes("W")));
+        d_stock.addFamily(new HColumnDescriptor(Bytes.toBytes("S")));
 
 
         this.hBaseAdmin.createTable(d_warehouse);
@@ -105,6 +112,37 @@ public class HBaseTPCC {
         Stock.insertData(config, folderpath);
 
     }
+
+    public void dropTPCCTables() throws IOException{
+        
+        this.hBaseAdmin.disableTable("warehouse");
+        this.hBaseAdmin.deleteTable("warehouse");
+
+        this.hBaseAdmin.disableTable("stock");
+        this.hBaseAdmin.deleteTable("stock");
+
+        this.hBaseAdmin.disableTable("item");
+        this.hBaseAdmin.deleteTable("item");
+
+        this.hBaseAdmin.disableTable("history");
+        this.hBaseAdmin.deleteTable("history");
+
+        this.hBaseAdmin.disableTable("new_order");
+        this.hBaseAdmin.deleteTable("new_order");
+
+        this.hBaseAdmin.disableTable("order_line");
+        this.hBaseAdmin.deleteTable("order_line");
+
+        this.hBaseAdmin.disableTable("district");
+        this.hBaseAdmin.deleteTable("district");
+
+        this.hBaseAdmin.disableTable("customer");
+        this.hBaseAdmin.deleteTable("customer");
+
+        this.hBaseAdmin.disableTable("orders");
+        this.hBaseAdmin.deleteTable("orders");
+    }
+
 
     /**
      * This method generates the key
@@ -172,6 +210,9 @@ public class HBaseTPCC {
                 System.exit(-2);
             }
             hBaseTPCC.loadTables(args[2]);
+        }
+        else if(args[1].toUpperCase().equals("DROPTABLES")){
+           hBaseTPCC.dropTPCCTables();   
         }
         else if(args[1].toUpperCase().equals("QUERY1")){
             if(args.length!=6){

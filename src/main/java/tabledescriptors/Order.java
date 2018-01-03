@@ -12,7 +12,7 @@ import java.io.*;
 
 public class Order {
 
-    private static String name = "order";
+    private static String name = "orders";
 
 
     public static HTableDescriptor createDescriptor(){
@@ -36,11 +36,17 @@ public class Order {
         }
 
         HTable table = new HTable(config, name);
+        long nline = 0;
 
         for(String line; (line = br.readLine()) != null; ) {
             String[] fields = line.split(",");
-            if(fields.length != 9)
+            nline++;
+
+            if(fields.length != 8){
+               System.out.println("Found missing values in table: "+ name +" line: "+nline + " number of fields: " + fields.length);
                 continue;
+            }
+
             Put p = new Put(Bytes.toBytes(fields[2]+fields[1]+fields[0]));
 
             p.add(Bytes.toBytes("O"), Bytes.toBytes("ID"), Bytes.toBytes(fields[0]));

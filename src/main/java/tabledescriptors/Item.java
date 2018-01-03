@@ -36,11 +36,17 @@ public class Item {
         }
 
         HTable table = new HTable(config, name);
+        long nline = 0;
 
         for(String line; (line = br.readLine()) != null; ) {
             String[] fields = line.split(",");
-            if(fields.length != 9)
+            nline++;
+
+            if(fields.length != 5){
+               System.out.println("Found missing values in table: "+ name +" line: "+nline + " number of fields: " + fields.length);
                 continue;
+            }
+
             Put p = new Put(Bytes.toBytes(fields[0]));
 
             p.add(Bytes.toBytes("I"), Bytes.toBytes("ID"), Bytes.toBytes(fields[0])); // I_ID

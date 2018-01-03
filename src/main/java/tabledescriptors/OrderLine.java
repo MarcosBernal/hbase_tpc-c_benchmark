@@ -36,11 +36,17 @@ public class OrderLine {
         }
 
         HTable table = new HTable(config, name);
+        long nline = 0;
 
         for(String line; (line = br.readLine()) != null; ) {
             String[] fields = line.split(",");
-            if(fields.length != 9)
+            nline++;
+
+            if(fields.length != 10){
+               System.out.println("Found missing values in table: "+ name +" line: "+nline + " number of fields: " + fields.length);
                 continue;
+            }
+
             Put p = new Put(Bytes.toBytes(fields[2]+fields[1]+fields[0]+fields[3]));
 
             p.add(Bytes.toBytes("O"), Bytes.toBytes("ID"), Bytes.toBytes(fields[0])); // OL_O_ID
