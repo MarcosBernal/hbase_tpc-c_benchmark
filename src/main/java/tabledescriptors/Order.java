@@ -9,6 +9,9 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 public class Order {
 
@@ -36,6 +39,7 @@ public class Order {
         }
 
         HTable table = new HTable(config, name);
+        DateFormat timeParser = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss.SSS");
         long nline = 0;
 
         for(String line; (line = br.readLine()) != null; ) {
@@ -53,7 +57,9 @@ public class Order {
             p.add(Bytes.toBytes("D"), Bytes.toBytes("ID"), Bytes.toBytes(fields[1]));
             p.add(Bytes.toBytes("W"), Bytes.toBytes("ID"), Bytes.toBytes(fields[2]));
             p.add(Bytes.toBytes("C"), Bytes.toBytes("ID"), Bytes.toBytes(fields[3]));
-            p.add(Bytes.toBytes("O"), Bytes.toBytes("ENTRY_D"), Bytes.toBytes(fields[4]));
+            try {
+				p.add(Bytes.toBytes("O"), Bytes.toBytes("ENTRY_D"), Bytes.toBytes(timeParser.parse(fields[4]).getTime()));
+			} catch (ParseException e) {  e.printStackTrace(); }
             p.add(Bytes.toBytes("O"), Bytes.toBytes("CARRIER_ID"), Bytes.toBytes(fields[5]));
             p.add(Bytes.toBytes("O"), Bytes.toBytes("OL_CNT"), Bytes.toBytes(fields[6]));
             p.add(Bytes.toBytes("O"), Bytes.toBytes("ALL_LOCAL"), Bytes.toBytes(fields[7]));
@@ -62,6 +68,7 @@ public class Order {
             table.put(p);
         }
 
+        table.close();
 
     }
 }

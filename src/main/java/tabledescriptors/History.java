@@ -54,6 +54,8 @@ public class History {
 
             table.put(p);
         }
+        
+        table.close();
 
 
     }

@@ -5,13 +5,22 @@ import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import tabledescriptors.*;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -98,8 +107,8 @@ public class HBaseTPCC {
     }
 
     public void loadTables(String folderpath)throws IOException{
-        File folder = new File(folderpath);
-        File[] listOfFiles = folder.listFiles();
+        //File folder = new File(folderpath);
+        //File[] listOfFiles = folder.listFiles();
 
         Warehouse.insertData(config, folderpath);
         District.insertData(config, folderpath);
@@ -163,9 +172,55 @@ public class HBaseTPCC {
 
 
     public List<String> query1(String warehouseId, String districtId, String startDate, String endDate) throws IOException {
-        //TO IMPLEMENT
-        System.exit(-1);
-        return null;
+    	
+    	DateFormat timeParser = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss.SSS");
+        long startDateLong = 0;
+        long endDateLong = 0;
+        HTable table = new HTable(config, "orders");
+        List<String> customers = new ArrayList<String>();
+        
+    	try {
+			startDateLong = timeParser.parse(startDate).getTime();
+			endDateLong = timeParser.parse(endDate).getTime();
+		} catch (ParseException e) {  e.printStackTrace(); }
+
+    	// Setting a filter to get only rows from one warehouse
+    	Filter ware_filter = new SingleColumnValueFilter(Bytes.toBytes("W"), Bytes.toBytes("ID"), 
+    			CompareFilter.CompareOp.EQUAL, Bytes.toBytes(warehouseId));
+    	
+    	// Setting a filter to get only rows from one district
+    	Filter distr_filter = new SingleColumnValueFilter(Bytes.toBytes("D"), Bytes.toBytes("ID"), 
+    			CompareFilter.CompareOp.EQUAL, Bytes.toBytes(warehouseId));
+    	
+    	// Setting filters to get only rows between the two dates
+    	Filter start_filter = new SingleColumnValueFilter(Bytes.toBytes("O"), Bytes.toBytes("ENTRY_D"), 
+    			CompareFilter.CompareOp.GREATER_OR_EQUAL, Bytes.toBytes(startDateLong));
+    	
+    	Filter end_filter = new SingleColumnValueFilter(Bytes.toBytes("O"), Bytes.toBytes("ENTRY_D"), 
+    			CompareFilter.CompareOp.LESS_OR_EQUAL, Bytes.toBytes(endDateLong));
+    	
+    	// Placing all filters together
+    	// By default it uses FilterList.Operator.MUST_PASS_ALL which means an AND between the different filters to use OR use FilterList.Operator.MUST_PASS_ALL
+    	FilterList filterList = new FilterList();
+    	filterList.addFilter(ware_filter);
+    	filterList.addFilter(distr_filter);
+    	filterList.addFilter(start_filter);
+    	filterList.addFilter(end_filter);
+
+    	// Creation of object scan to retrieve cells from HBase
+    	Scan s = new Scan();
+    	s.setFilter(filterList);
+    	
+    	// Retrieve the column C:ID from ORDER table
+    	ResultScanner scanner = table.getScanner(s);
+    	
+        for (Result rr = scanner.next(); rr != null; rr = scanner.next()) 
+        	customers.add(rr.getValue(Bytes.toBytes("C"), Bytes.toBytes("ID")).toString());
+        //    System.out.println(Bytes.toString(rr.getRow()) + " => " +
+        //            Bytes.toString(rr.getValue(Bytes.toBytes("C"), Bytes.toBytes("ID"))));
+        //}
+    	
+        return customers;
 
     }
 

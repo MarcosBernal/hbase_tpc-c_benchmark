@@ -65,6 +65,7 @@ public class District{
             table.put(p);
         }
 
+        table.close();
 
     }
 }

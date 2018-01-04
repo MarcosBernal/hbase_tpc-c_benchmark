@@ -70,6 +70,7 @@ public class Stock {
             table.put(p);
         }
 
+        table.close();
 
     }
 }

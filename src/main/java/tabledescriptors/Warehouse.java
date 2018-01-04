@@ -58,6 +58,8 @@ public class Warehouse extends HTable {
 
             table.put(p);
         }
+        
+        table.close();
 
 
     }

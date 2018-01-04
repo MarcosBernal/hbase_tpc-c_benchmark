@@ -58,6 +58,7 @@ public class Item {
             table.put(p);
         }
 
+        table.close();
 
     }
 }

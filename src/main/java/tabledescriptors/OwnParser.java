@@ -1,4 +1,5 @@
 package tabledescriptors;
+/*
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -36,6 +37,7 @@ public class OwnParser {
         }
 
         HTable table = new HTable(config, name);
-
+        table.close();
     }
 }
+*/

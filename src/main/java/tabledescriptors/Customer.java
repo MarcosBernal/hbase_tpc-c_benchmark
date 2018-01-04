@@ -73,6 +73,8 @@ public class Customer { // extends OwnParser{
 
             table.put(p);
         }
+        
+        table.close();
 
 
     }

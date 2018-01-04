@@ -63,6 +63,7 @@ public class OrderLine {
             table.put(p);
         }
 
+        table.close();
 
     }
 }
