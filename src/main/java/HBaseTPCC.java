@@ -275,9 +275,38 @@ public class HBaseTPCC {
     }
 
     public int query4(String warehouseId, String[] districtIds) throws IOException {
-        //TO IMPLEMENT
-        System.exit(-1);
-        return 0;
+        
+    	HTable query4_table = new HTable(config, "orders");
+    	List<String> customers = new ArrayList<String>();
+    	
+    	// Setting a filter to get only rows from one warehouse
+    	Filter ware_filter = new SingleColumnValueFilter(Bytes.toBytes("W"), Bytes.toBytes("ID"), 
+    			CompareFilter.CompareOp.EQUAL, Bytes.toBytes(warehouseId));
+    	
+    	// Setting a filter to get only rows from districts that belong to the list
+    	FilterList districts_filter = new FilterList(FilterList.Operator.MUST_PASS_ONE);
+    	for(String districtId : districtIds) {
+    		districts_filter.addFilter(new SingleColumnValueFilter(Bytes.toBytes("D"), Bytes.toBytes("ID"), 
+    				CompareFilter.CompareOp.EQUAL, Bytes.toBytes(districtId)));
+    	}
+		FilterList filterAggregate = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+		filterAggregate.addFilter(ware_filter);
+		filterAggregate.addFilter(districts_filter);
+
+    	// Creation of object scan to retrieve cells from HBase
+    	Scan s = new Scan();
+    	s.setFilter(filterAggregate);
+    	
+    	// Retrieve the column C:ID from ORDER table
+    	ResultScanner scanner = query4_table.getScanner(s);
+    	
+    	// Iterate the results to store in a list the customer IDs that satisfy the conditions
+        for (Result rr = scanner.next(); rr != null; rr = scanner.next()) 
+        	customers.add(rr.getValue(Bytes.toBytes("C"), Bytes.toBytes("ID")).toString());
+
+        query4_table.close();
+    	
+        return customers.size();
     }
 
     public static void main(String[] args) throws IOException {

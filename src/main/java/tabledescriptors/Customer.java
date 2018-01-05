@@ -10,7 +10,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.*;
 
-public class Customer { // extends OwnParser{
+public class Customer {
 
     private static String name = "customer";
 
