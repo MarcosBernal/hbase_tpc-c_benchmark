@@ -223,7 +223,7 @@ public class HBaseTPCC {
     	
     	// Iterate the results to store in a list the customer IDs that satisfy the conditions
         for (Result rr = scanner.next(); rr != null; rr = scanner.next()) 
-        	customers.add(rr.getValue(Bytes.toBytes("C"), Bytes.toBytes("ID")).toString());
+        	customers.add(warehouseId + districtId + Bytes.toString(rr.getValue(Bytes.toBytes("C"), Bytes.toBytes("ID"))));
 
         table.close();
     	
@@ -302,7 +302,7 @@ public class HBaseTPCC {
     	
     	// Iterate the results to store in a list the customer IDs that satisfy the conditions
         for (Result rr = scanner.next(); rr != null; rr = scanner.next()) 
-        	customers.add(rr.getValue(Bytes.toBytes("C"), Bytes.toBytes("ID")).toString());
+        	customers.add(warehouseId + Bytes.toString(rr.getValue(Bytes.toBytes("D"), Bytes.toBytes("ID"))) + Bytes.toString(rr.getValue(Bytes.toBytes("C"), Bytes.toBytes("ID"))));
 
         query4_table.close();
     	
