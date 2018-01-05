@@ -1,10 +1,14 @@
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -63,14 +67,17 @@ public class HBaseTPCC {
         d_district.addFamily(new HColumnDescriptor(Bytes.toBytes("D")));
         d_district.addFamily(new HColumnDescriptor(Bytes.toBytes("W")));
 
-        d_customer.addFamily(new HColumnDescriptor(Bytes.toBytes("C")));
+        HColumnDescriptor columnDescriptor = new HColumnDescriptor(Bytes.toBytes("C"));
+        columnDescriptor.setMaxVersions(6); // Due to requirements of query 2
+        d_customer.addFamily(columnDescriptor);
+        
         d_customer.addFamily(new HColumnDescriptor(Bytes.toBytes("D")));
-	      d_customer.addFamily(new HColumnDescriptor(Bytes.toBytes("W")));
+	    d_customer.addFamily(new HColumnDescriptor(Bytes.toBytes("W")));
 
         d_history.addFamily(new HColumnDescriptor(Bytes.toBytes("H")));
         d_history.addFamily(new HColumnDescriptor(Bytes.toBytes("C")));
         d_history.addFamily(new HColumnDescriptor(Bytes.toBytes("D")));
-	      d_history.addFamily(new HColumnDescriptor(Bytes.toBytes("W")));
+	    d_history.addFamily(new HColumnDescriptor(Bytes.toBytes("W")));
 
         d_new_order.addFamily(new HColumnDescriptor(Bytes.toBytes("O")));
         d_new_order.addFamily(new HColumnDescriptor(Bytes.toBytes("D")));
@@ -214,25 +221,57 @@ public class HBaseTPCC {
     	// Retrieve the column C:ID from ORDER table
     	ResultScanner scanner = table.getScanner(s);
     	
+    	// Iterate the results to store in a list the customer IDs that satisfy the conditions
         for (Result rr = scanner.next(); rr != null; rr = scanner.next()) 
         	customers.add(rr.getValue(Bytes.toBytes("C"), Bytes.toBytes("ID")).toString());
-        //    System.out.println(Bytes.toString(rr.getRow()) + " => " +
-        //            Bytes.toString(rr.getValue(Bytes.toBytes("C"), Bytes.toBytes("ID"))));
-        //}
+
+        table.close();
     	
         return customers;
 
     }
 
     public void query2(String warehouseId, String districtId, String customerId, String[] discounts) throws IOException {
-        //TO IMPLEMENT
-        System.exit(-1);
+    	
+    	String localCustomerId = warehouseId + districtId + customerId;    	
+    	
+    	HTable query2_table = new HTable(config, "customer");
+    	Put put = new Put(Bytes.toBytes(localCustomerId));
+    	
+    	// In case more than 6 discounts want to be added to customer we only take into account the last 6
+    	for(int i = discounts.length > 6 ? discounts.length - 7 : 0; i<discounts.length; i++) {
+    		put.add(Bytes.toBytes("C"), Bytes.toBytes("DISCOUNT"), Bytes.toBytes(discounts[i]));
+    		query2_table.put(put);
+    	}
+    	
+    	query2_table.close();
+
     }
 
     public String[] query3(String warehouseId, String districtId, String customerId) throws IOException {
-        //TO IMPLEMENT
-        System.exit(-1);
-        return null;
+    	String localCustomerId = warehouseId + districtId + customerId;    	
+    	
+    	HTable query3_table = new HTable(config, "customer");
+    	Get get = new Get(Bytes.toBytes(localCustomerId));
+    	get.setMaxVersions(4);
+    	
+    	String[] discountArray = new String[4];
+    	
+    	Result discount = query3_table.get(get); 
+    	
+    	// Check if row and cell exists in order to avoid null.exception
+    	if(query3_table.exists(get) && !discount.isEmpty()) {
+    		List<Cell> values = discount.getColumnCells(Bytes.toBytes("C"), Bytes.toBytes("DISCOUNT"));
+    	   	
+    	    for (int i = 0; i < values.size(); i++) 
+    	        discountArray[i] = Bytes.toString( CellUtil.cloneValue( values.get(i) ) );
+    	    
+    	}
+    	else
+    		System.out.println("No such client with warehouseId, districtId and customerId \'" + localCustomerId + "\' exists. Empty? "+ query3_table.get(get).isEmpty());
+    	
+    	query3_table.close();   	
+    	return discountArray;
     }
 
     public int query4(String warehouseId, String[] districtIds) throws IOException {
