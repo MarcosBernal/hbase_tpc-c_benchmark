@@ -160,24 +160,6 @@ public class HBaseTPCC {
     }
 
 
-    /**
-     * This method generates the key
-     * @param values The value of each column
-     * @param keyTable The position of each value that is required to create the key in the array of values.
-     * @return The encoded key to be inserted in HBase
-     */
-    private byte[] getKey(String[] values, int[] keyTable) {
-        String keyString = "";
-        for (int keyId : keyTable){
-            keyString += values[keyId];
-        }
-        byte[] key = Bytes.toBytes(keyString);
-
-        return key;
-    }
-
-
-
     public List<String> query1(String warehouseId, String districtId, String startDate, String endDate) throws IOException {
     	
         long startDateLong = Order.getTimeLong(startDate);
@@ -191,7 +173,7 @@ public class HBaseTPCC {
     	
     	// Setting a filter to get only rows from one district
     	Filter distr_filter = new SingleColumnValueFilter(Bytes.toBytes("D"), Bytes.toBytes("ID"), 
-    			CompareFilter.CompareOp.EQUAL, Bytes.toBytes(warehouseId));
+    			CompareFilter.CompareOp.EQUAL, Bytes.toBytes(districtId));
     	
     	// Setting filters to get only rows between the two dates
     	Filter start_filter = new SingleColumnValueFilter(Bytes.toBytes("O"), Bytes.toBytes("ENTRY_D"), 
@@ -217,7 +199,9 @@ public class HBaseTPCC {
     	
     	// Iterate the results to store in a list the customer IDs that satisfy the conditions
         for (Result rr = scanner.next(); rr != null; rr = scanner.next()) 
-        	customers.add(warehouseId + districtId + Bytes.toString(rr.getValue(Bytes.toBytes("C"), Bytes.toBytes("ID"))));
+        	customers.add(Bytes.toString(rr.getValue(Bytes.toBytes("W"), Bytes.toBytes("ID")))
+        			+ Bytes.toString(rr.getValue(Bytes.toBytes("D"), Bytes.toBytes("ID")))
+        			+ Bytes.toString(rr.getValue(Bytes.toBytes("C"), Bytes.toBytes("ID"))));
 
         table.close();
     	
