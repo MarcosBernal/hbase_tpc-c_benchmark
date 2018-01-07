@@ -23,6 +23,14 @@ public class Order {
         descriptor.addFamily(new HColumnDescriptor(Bytes.toBytes("W")));
         return descriptor;
     }
+    
+    static DateFormat timeParser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static long getTimeLong(String date) {
+    	try {
+			return timeParser.parse(date.split("\\.")[0]).getTime();
+		} catch (ParseException e) { e.printStackTrace(); }
+    	return 0;
+    }
 
     public static void insertData(Configuration config, String folderpath) throws IOException {
         File file_path = new File(folderpath+"/"+name+".csv");
@@ -39,7 +47,7 @@ public class Order {
         }
 
         HTable table = new HTable(config, name);
-        DateFormat timeParser = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss.SSS");
+        
         long nline = 0;
 
         for(String line; (line = br.readLine()) != null; ) {
@@ -57,9 +65,7 @@ public class Order {
             p.add(Bytes.toBytes("D"), Bytes.toBytes("ID"), Bytes.toBytes(fields[1]));
             p.add(Bytes.toBytes("W"), Bytes.toBytes("ID"), Bytes.toBytes(fields[2]));
             p.add(Bytes.toBytes("C"), Bytes.toBytes("ID"), Bytes.toBytes(fields[3]));
-            try {
-				p.add(Bytes.toBytes("O"), Bytes.toBytes("ENTRY_D"), Bytes.toBytes(timeParser.parse(fields[4]).getTime()));
-			} catch (ParseException e) {  e.printStackTrace(); }
+            p.add(Bytes.toBytes("O"), Bytes.toBytes("ENTRY_D"), Bytes.toBytes(Order.getTimeLong(fields[4])));
             p.add(Bytes.toBytes("O"), Bytes.toBytes("CARRIER_ID"), Bytes.toBytes(fields[5]));
             p.add(Bytes.toBytes("O"), Bytes.toBytes("OL_CNT"), Bytes.toBytes(fields[6]));
             p.add(Bytes.toBytes("O"), Bytes.toBytes("ALL_LOCAL"), Bytes.toBytes(fields[7]));

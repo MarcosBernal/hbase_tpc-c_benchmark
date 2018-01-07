@@ -180,16 +180,10 @@ public class HBaseTPCC {
 
     public List<String> query1(String warehouseId, String districtId, String startDate, String endDate) throws IOException {
     	
-    	DateFormat timeParser = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss.SSS");
-        long startDateLong = 0;
-        long endDateLong = 0;
+        long startDateLong = Order.getTimeLong(startDate);
+        long endDateLong = Order.getTimeLong(endDate);
         HTable table = new HTable(config, "orders");
         List<String> customers = new ArrayList<String>();
-        
-    	try {
-			startDateLong = timeParser.parse(startDate).getTime();
-			endDateLong = timeParser.parse(endDate).getTime();
-		} catch (ParseException e) {  e.printStackTrace(); }
 
     	// Setting a filter to get only rows from one warehouse
     	Filter ware_filter = new SingleColumnValueFilter(Bytes.toBytes("W"), Bytes.toBytes("ID"), 
