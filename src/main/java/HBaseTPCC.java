@@ -252,10 +252,10 @@ public class HBaseTPCC {
     	return discountArray;
     }
 
-    public int query4(String warehouseId, String[] districtIds) throws IOException {
+    public List<Integer> query4(String warehouseId, String[] districtIds) throws IOException {
         
     	HTable query4_table = new HTable(config, "orders");
-    	List<String> customers = new ArrayList<String>();
+    	List<Integer> customers = new ArrayList<String>();
     	
     	// Setting a filter to get only rows from one warehouse
     	Filter ware_filter = new SingleColumnValueFilter(Bytes.toBytes("W"), Bytes.toBytes("ID"), 
@@ -280,11 +280,11 @@ public class HBaseTPCC {
     	
     	// Iterate the results to store in a list the customer IDs that satisfy the conditions
         for (Result rr = scanner.next(); rr != null; rr = scanner.next()) 
-        	customers.add(warehouseId + Bytes.toString(rr.getValue(Bytes.toBytes("D"), Bytes.toBytes("ID"))) + Bytes.toString(rr.getValue(Bytes.toBytes("C"), Bytes.toBytes("ID"))));
+        	customers.add(Integer.parseInt(warehouseId + Bytes.toString(rr.getValue(Bytes.toBytes("D"), Bytes.toBytes("ID"))) + Bytes.toString(rr.getValue(Bytes.toBytes("C"), Bytes.toBytes("ID")))));
 
         query4_table.close();
     	
-        return customers.size();
+        return customers;
     }
 
     public static void main(String[] args) throws IOException {
