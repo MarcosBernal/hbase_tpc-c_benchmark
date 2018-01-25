@@ -50,7 +50,7 @@ Extract the files from 7z file to store them in  /home/osboxes/Desktop/CSVS
 `/home/osboxes/Desktop/HBase-API/target/HBase-1.0-SNAPSHOT-bin/HBase-1.0-SNAPSHOT/bin/HBaseTPCC localhost:2181 query3 1 1 1`
 
 
-#### Query 4 List all the customers from a given list of districts ina specefied warehouse
+#### Query 4 List all the customers from a given list of districts in a specified warehouse
 
 `/home/osboxes/Desktop/HBase-API/target/HBase-1.0-SNAPSHOT-bin/HBase-1.0-SNAPSHOT/bin/HBaseTPCC localhost:2181 query4 2 3,4,5` => Returns 9000 customers (correct according specification)
 
