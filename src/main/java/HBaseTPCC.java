@@ -255,7 +255,7 @@ public class HBaseTPCC {
     public List<Integer> query4(String warehouseId, String[] districtIds) throws IOException {
         
     	HTable query4_table = new HTable(config, "orders");
-    	List<Integer> customers = new ArrayList<String>();
+    	List<Integer> customers = new ArrayList<Integer>();
     	
     	// Setting a filter to get only rows from one warehouse
     	Filter ware_filter = new SingleColumnValueFilter(Bytes.toBytes("W"), Bytes.toBytes("ID"), 
@@ -283,7 +283,8 @@ public class HBaseTPCC {
         	customers.add(Integer.parseInt(warehouseId + Bytes.toString(rr.getValue(Bytes.toBytes("D"), Bytes.toBytes("ID"))) + Bytes.toString(rr.getValue(Bytes.toBytes("C"), Bytes.toBytes("ID")))));
 
         query4_table.close();
-    	
+        System.out.println("Found " +customers.size() + " customers that are listed below:");
+
         return customers;
     }
 
